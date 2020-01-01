@@ -9,6 +9,7 @@ const Repo = ({ repo, index }) =>
   </tr>;
 
 export default class GitHubRepos extends React.Component {
+  _isMounted = false;
   constructor(props) {
     super(props);
 
@@ -18,8 +19,13 @@ export default class GitHubRepos extends React.Component {
       error: null,
     };
   }
+  
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
 
   componentDidMount() {
+    this._isMounted = true;
     axios
       .get(
         window.encodeURI(
@@ -28,10 +34,12 @@ export default class GitHubRepos extends React.Component {
       )
       .then(response => {
         const repos = response.data.items;
-        this.setState({
-          repos,
-          loading: false,
-        });
+        if (this._isMounted) {
+          this.setState({
+            repos,
+            loading: false,
+          });
+        }
       })
       .catch(error => {
         this.setState({
